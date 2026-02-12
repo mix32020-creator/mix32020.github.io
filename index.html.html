@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PLAY HARD - Professional Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        :root {
+            --primary: #007bff;
+            --bg-blue: #b7e7fb;
+            --white: #ffffff;
+            --danger: #dc3545;
+            --success: #28a745;
+            --warning: #ffc107;
+            --dark: #1e293b;
+            --slate-100: #f1f5f9;
+        }
+
+        body { font-family: 'Kanit', sans-serif; margin: 0; background-color: var(--bg-blue); color: #333; scroll-behavior: smooth; }
+
+        /* ===== AUTH PAGE ===== */
+        #authPage { position: fixed; inset: 0; background: var(--bg-blue); display: flex; align-items: center; justify-content: center; z-index: 5000; }
+        .auth-card { background: white; padding: 35px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 90%; max-width: 400px; text-align: center; }
+        .auth-card h2 { margin-top: 0; color: var(--primary); }
+        .auth-btn { width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 10px; cursor: pointer; font-family: 'Kanit'; font-weight: bold; font-size: 16px; transition: 0.2s; }
+
+        .password-container { position: relative; width: 100%; }
+        .eye-icon { 
+            position: absolute; 
+            right: 15px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            cursor: pointer; 
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+        }
+
+        /* ===== HEADER & NAV ===== */
+        header {
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+                        url("Jordan.png"), url("kdb.png"), url("Aom.png");
+            background-color: #333;
+            background-size: cover, 30% auto, 40% auto, 30% auto;
+            background-repeat: no-repeat;
+            background-position: center, left center, center center, right center;
+            padding: 60px 20px; text-align: center; color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .search-container { max-width: 600px; margin: -30px auto 20px; padding: 0 15px; position: relative; z-index: 101; }
+        .search-box {
+            display: flex; background: white; border-radius: 50px; padding: 5px 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15); align-items: center;
+        }
+        .search-box input { border: none; padding: 12px; flex: 1; outline: none; font-size: 16px; font-family: 'Kanit'; }
+
+        .nav {
+            display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
+            background: var(--white); padding: 12px; position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .nav button, .cart-trigger {
+            background: #f1f5f9; border: none; padding: 8px 16px; border-radius: 20px;
+            cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 6px;
+            font-family: 'Kanit'; transition: 0.2s; color: #475569;
+        }
+        .nav button:hover { background: var(--primary); color: white; }
+        .active-nav { background: var(--primary) !important; color: white !important; }
+        .admin-btn { background: var(--warning) !important; color: #333 !important; }
+        .cart-trigger { background: var(--danger) !important; color: white !important; }
+
+        /* ===== DASHBOARD STYLES ===== */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 20px; border-radius: 18px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .stat-icon { width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; }
+        .stat-info h4 { margin: 0; font-size: 12px; color: #64748b; }
+        .stat-info p { margin: 0; font-size: 18px; font-weight: bold; color: #1e293b; }
+
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 15px; }
+        .page { display: none; animation: fadeIn 0.3s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .product-card { background: white; border-radius: 16px; padding: 15px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.3s; position: relative; overflow: hidden; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .badge { position: absolute; top: 10px; right: -30px; background: var(--danger); color: white; padding: 5px 35px; transform: rotate(45deg); font-size: 10px; font-weight: bold; z-index: 10; }
+        .product-card img { width: 100%; height: 160px; object-fit: cover; border-radius: 12px; margin-bottom: 10px; }
+
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background: white; padding: 25px; border-radius: 24px; width: 90%; max-width: 450px; max-height: 80vh; overflow-y: auto; }
+        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; font-family: 'Kanit'; box-sizing: border-box; }
+        .btn-full { width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 10px; font-family: 'Kanit'; font-size: 16px; }
+        .btn-primary { background: var(--primary); color: white; }
+    </style>
+</head>
+<body>
+
+<div style="background: #ffc107; color: #000; padding: 10px; text-align: center; font-size: 14px; font-weight: bold; border-bottom: 2px solid #e0a800; position: relative; z-index: 10000;">
+    ⚠️ เว็บไซต์นี้จัดทำเพื่อการศึกษาเท่านั้น รูปภาพและเครื่องหมายการค้าทั้งหมดเป็นลิขสิทธิ์ของเจ้าของโดยชอบธรรม
+</div>
+
+<div id="authPage">
+    <div class="auth-card" id="loginBox">
+        <h2>PLAY HARD</h2>
+        <input type="text" id="loginUser" placeholder="ชื่อผู้ใช้">
+        <div class="password-container">
+            <input type="password" id="loginPass" placeholder="รหัสผ่าน">
+            <div class="eye-icon" onclick="togglePassVisibility('loginPass', this)">
+                <i data-lucide="eye"></i>
+            </div>
+        </div>
+        <button class="auth-btn btn-primary" onclick="handleLogin()">เข้าสู่ระบบ</button>
+        <button class="auth-btn" style="background: var(--dark); color: white;" onclick="handleAdminLogin()">เข้าสู่ระบบแอดมิน</button>
+        <p style="font-size: 13px; margin-top: 15px;">ยังไม่มีบัญชี? <a href="javascript:void(0)" onclick="toggleAuth('reg')">สมัครสมาชิก</a></p>
+    </div>
+
+    <div class="auth-card" id="regBox" style="display:none;">
+        <h2>สมัครสมาชิก</h2>
+        <input type="text" id="regUser" placeholder="ชื่อผู้ใช้ที่ต้องการ">
+        <div class="password-container">
+            <input type="password" id="regPass" placeholder="รหัสผ่าน">
+            <div class="eye-icon" onclick="togglePassVisibility('regPass', this)">
+                <i data-lucide="eye"></i>
+            </div>
+        </div>
+        <button class="auth-btn btn-success" onclick="handleRegister()">ยืนยันสมัครสมาชิก</button>
+        <p style="font-size: 13px; margin-top: 15px;"><a href="javascript:void(0)" onclick="toggleAuth('login')">กลับหน้าล็อกอิน</a></p>
+    </div>
+</div>
+
+<div id="mainContent" style="display:none;">
+    <header>
+        <h1 style="font-size: 2.8rem; margin: 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">PLAY HARD</h1>
+        <p id="userDisplay"></p>
+        <button onclick="location.reload()" style="background:none; border:1px solid white; color:white; border-radius:20px; font-family:'Kanit'; cursor:pointer; padding: 2px 10px; font-size:12px;">ออกจากระบบ</button>
+    </header>
+
+    <div class="search-container">
+        <div class="search-box">
+            <i data-lucide="search" style="color: #94a3b8;"></i>
+            <input type="text" id="searchInput" placeholder="ค้นหาสินค้า..." onkeyup="searchProduct()">
+        </div>
+    </div>
+
+    <div class="nav">
+        <button onclick="showPage('shop'); renderProducts();" id="nav-shop" class="active-nav"><i data-lucide="home"></i> หน้าแรก</button>
+        <button onclick="filterCategory('football')">ฟุตบอล</button>
+        <button onclick="filterCategory('badminton')">แบดมินตัน</button>
+        <button onclick="filterCategory('shoes')">รองเท้า</button>
+        <button onclick="filterCategory('volleyball')">วอลเลย์บอล</button>
+        <button onclick="filterCategory('basketball')">บาสเกตบอล</button>
+        <button onclick="filterCategory('Football shirt + pants')">เสื้อ+กางเกง</button>
+        <button onclick="filterCategory('protect')">อุปกรณ์ป้องกัน</button>
+        <button onclick="showPage('orders')" id="nav-orders"><i data-lucide="history"></i> ประวัติการสั่งซื้อ</button>
+        
+       <button onclick="showPage('references')" id="nav-references" style="background-color: #334155 !important; color: white !important; font-weight: bold; border-radius: 8px; border: none; padding: 0 15px;">
+    <i data-lucide="book-open"></i> อ้างอิงสินค้า
+</button>
+        <button id="adminBtn" class="admin-btn" onclick="showPage('admin')" style="display:none;"><i data-lucide="settings"></i> จัดการ</button>
+        <button id="memberBtn" class="admin-btn" onclick="showPage('member')" style="display:none;"><i data-lucide="users"></i> สมาชิก</button>
+        <div class="cart-trigger" onclick="openCart()">
+            <i data-lucide="shopping-cart"></i> (<span id="cartCount">0 | 0 ฿</span>)
+        </div>
+    </div>
+
+    <div class="container">
+        <section id="shopPage" class="page active">
+            <h2 id="categoryTitle">สินค้าแนะนำ</h2>
+            <div id="product-list" class="products-grid"></div>
+        </section>
+
+        <section id="ordersPage" class="page">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>📦 ประวัติการสั่งซื้อ</h2>
+                <button id="clearOrderBtn" onclick="clearOrderHistory()" style="display:none; color:var(--danger); border:none; background:none; cursor:pointer;">ล้างประวัติทั้งหมด</button>
+            </div>
+            <div id="order-list-container"></div>
+        </section>
+
+        <section id="referencesPage" class="page">
+            <div style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-family: 'Kanit';">
+                <h2 style="color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                    <i data-lucide="book-open"></i> รายการอ้างอิงและลิขสิทธิ์
+                </h2>
+                
+                <div style="background: #fff4f4; border-left: 5px solid #ef4444; padding: 20px; margin: 20px 0; border-radius: 12px;">
+                    <b style="color: #ef4444; font-size: 18px;">⚠️ ประกาศสำคัญ: เว็บไซต์นี้ไม่ได้ขายจริง</b>
+                    <p style="font-size: 15px; color: #7f1d1d; margin-top: 8px; line-height: 1.6;">
+                        โปรเจกต์นี้จัดทำขึ้นเพื่อ **การศึกษาและทดสอบระบบ** ในรายวิชาโครงงานเท่านั้น ข้อมูลสินค้า ราคา และการทำรายการสั่งซื้อทั้งหมดเป็นเพียง **ข้อมูลจำลอง** ไม่มีการจัดส่งสินค้าจริง และไม่มีการรับชำระเงินจริงแต่ประอย่างใด
+                    </p>
+                </div>
+
+                <div style="color: #475569; line-height: 1.8;">
+                    <h3 style="font-size: 17px; color: var(--dark); margin-top: 25px;">📸 การอ้างอิงรูปภาพ (Image Credits)</h3>
+                    <ul style="font-size: 14px; padding-left: 20px;">
+                        <li>รูปภาพผลิตภัณฑ์รองเท้าและอุปกรณ์กีฬา: อ้างอิงเพื่อการศึกษาจากสื่อประชาสัมพันธ์ของแบรนด์ <b>Adidas, Nike, Puma, และ Molten</b></li>
+                        <li>รูปภาพประกอบแบนเนอร์: <b>Jordan, Kevin De Bruyne (KDB)</b> และสื่อกราฟิกสาธารณะเพื่อการกีฬา</li>
+                        <li>ไอคอนระบบทั้งหมด: ใช้จากคลังโอเพนซอร์ส <b>Lucide Icons</b></li>
+                    </ul>
+
+                    <h3 style="font-size: 17px; color: var(--dark); margin-top: 25px;">⚖️ ลิขสิทธิ์ซอฟต์แวร์ (Software Copyright)</h3>
+                    <p style="font-size: 14px;">
+                        <b>โครงสร้างระบบ:</b> พัฒนาด้วย Pure JavaScript (Vanilla JS) ร่วมกับ LocalStorage API<br>
+                        <b>ผู้จัดทำ:</b> [นาย ภูริณัฐ บุรีสิน / รหัสนักศึกษา:66202040047]<br>
+                        <b>สถานะลิขสิทธิ์:</b> สงวนลิขสิทธิ์ตามกฎหมายในส่วนของโค้ดโปรแกรม ห้ามมิให้ผู้ใดคัดลอกเพื่อนำไปใช้ในเชิงพาณิชย์
+                    </p>
+                </div>
+                <button onclick="showPage('shop')" style="margin-top: 30px; width: 100%; padding: 15px; background: #f1f5f9; color: #475569; border: none; border-radius: 12px; cursor: pointer; font-weight: bold;">กลับสู่หน้าร้านค้า</button>
+            </div>
+        </section>
+
+        <section id="adminPage" class="page">
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: var(--primary);"><i data-lucide="dollar-sign"></i></div>
+                    <div class="stat-info"><h4>ยอดขายรวม</h4><p id="stat-revenue">0 ฿</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #1e293b;"><i data-lucide="shopping-bag"></i></div>
+                    <div class="stat-info"><h4>ทั้งหมด</h4><p id="stat-orders">0 รายการ</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: var(--warning);"><i data-lucide="clock"></i></div>
+                    <div class="stat-info"><h4>รอส่ง</h4><p id="stat-pending">0 รายการ</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: var(--success);"><i data-lucide="check-circle"></i></div>
+                    <div class="stat-info"><h4>สำเร็จ</h4><p id="stat-completed">0 รายการ</p></div>
+                </div>
+            </div>
+
+            <div style="background: white; padding: 25px; border-radius: 20px;">
+                <h3>➕ เพิ่มสินค้าใหม่</h3>
+                <input type="text" id="pName" placeholder="ชื่อสินค้า">
+                <input type="number" id="pPrice" placeholder="ราคาปกติ">
+                <select id="pCat">
+                    <option value="football">ฟุตบอล</option>
+                    <option value="badminton">แบดมินตัน</option>
+                    <option value="shoes">รองเท้า</option>
+                    <option value="Football shirt + pants">เสื้อ+กางเกง</option>
+                    <option value="volleyball">วอลเลย์บอล</option>
+                    <option value="basketball">บาสเกตบอล</option>
+                    <option value="protect">อุปกรณ์ป้องกัน</option>
+                </select>
+                <button class="btn-full btn-primary" onclick="addNewProduct()">ลงขายสินค้า</button>
+                <hr style="margin:25px 0; border:0; border-top:1px solid #eee;">
+                <h3>📦 จัดการสินค้า (ลดราคา & เปิด-ปิดการขาย)</h3>
+                <div id="admin-product-list"></div>
+                <button class="btn-full" style="background: #6c757d; color: white;" onclick="resetProducts()">🔄 รีเซ็ตข้อมูล</button>
+            </div> 
+        </section> 
+
+        <section id="memberPage" class="page">
+            <div style="background: white; padding: 25px; border-radius: 20px;">
+                <h3>👥 รายชื่อสมาชิกทั้งหมด</h3>
+                <div id="member-list-container"></div>
+            </div>
+        </section>
+        
+        <section id="checkoutPage" class="page">
+            <div style="background: white; padding: 25px; border-radius: 20px;">
+                <h3>📍 ข้อมูลจัดส่ง</h3>
+                <input type="text" id="custName" placeholder="ชื่อ-นามสกุล">
+                <input type="text" id="custPhone" placeholder="เบอร์โทรศัพท์">
+                <textarea id="custAddr" rows="3" placeholder="ที่อยู่โดยละเอียด..."></textarea>
+                <button class="btn-full btn-primary" onclick="openQR()">ไปหน้าชำระเงิน</button>
+            </div>
+        </section>
+    </div>
+</div>
+<div id="cartModal" class="modal">
+    <div class="modal-content">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:15px;">
+            <h3 style="margin:0;"><i data-lucide="shopping-cart"></i> ตะกร้าสินค้า</h3>
+            <button onclick="document.getElementById('cartModal').style.display='none'" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
+        </div>
+        <div id="cartItemsList"></div>
+        <div style="margin-top:20px; border-top:2px solid #eee; padding-top:15px;">
+            <h4 id="cartTotalText" style="text-align:right; color:var(--danger); font-size:18px;">ยอดรวม: 0 ฿</h4>
+            <button class="btn-full btn-primary" onclick="goToCheckout()">สั่งซื้อสินค้า</button>
+        </div>
+    </div>
+</div>
+<div id="qrModal" class="modal" style="display:none; justify-content:center; align-items:center; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:10000;">
+    <div class="modal-content" style="background:white; padding:25px; border-radius:20px; width:90%; max-width:450px; text-align:center; position:relative;">
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:15px;">
+            <h3 style="margin:0; font-family:'Kanit';">ชำระเงินผ่าน QR Code</h3>
+            <button onclick="document.getElementById('qrModal').style.display='none'" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
+        </div>
+
+        <p style="margin-bottom:5px; font-family:'Kanit';">ยอดชำระทั้งสิ้น</p>
+        <h2 id="qrTotalAmount" style="color:#ef4444; margin:0 0 20px 0; font-size:36px; font-family:'Kanit';">0</h2>
+
+        <div style="background:#fff; padding:15px; border:1px solid #ddd; border-radius:15px; margin:0 auto 20px auto; width: fit-content;">
+            <img src="qr.jpg" style="width: 100%; max-width: 180px; display: block; height: auto;">
+            <p style="font-size:12px; color:#666; margin-top:10px; font-family:'Kanit';">สแกนเพื่อชำระเงิน</p>
+        </div>
+
+        <button class="btn-full btn-primary" onclick="completeOrder()" style="width:100%; padding:15px; background:#007bff; color:white; border:none; border-radius:12px; font-weight:bold; cursor:pointer; font-family:'Kanit'; font-size:16px; margin-bottom:10px;">
+            ยืนยันว่าชำระเงินแล้ว
+        </button>
+        
+        <button onclick="document.getElementById('qrModal').style.display='none'" style="width:100%; padding:12px; background:#f1f5f9; color:#475569; border:none; border-radius:12px; cursor:pointer; font-family:'Kanit';">
+            ยกเลิก
+        </button>
+    </div>
+</div>
+<script>lucide.createIcons();</script>
+</body>
+</html>
+
+<script>
+    // --- ฟังก์ชันหลัก (รักษาไว้เหมือนเดิม) ---
+    function togglePassVisibility(inputId, iconEl) {
+        const input = document.getElementById(inputId);
+        if (input.type === "password") {
+            input.type = "text";
+            iconEl.innerHTML = '<i data-lucide="eye-off"></i>';
+        } else {
+            input.type = "password";
+            iconEl.innerHTML = '<i data-lucide="eye"></i>';
+        }
+        lucide.createIcons();
+    }
+    // === วางต่อท้ายฟังก์ชัน togglePassVisibility (ประมาณบรรทัดที่ 365) ===
+
+// ฟังก์ชันเปิดตะกร้า
+function openCart() {
+    const list = document.getElementById('cartItemsList');
+    if(!cart || cart.length === 0) {
+        list.innerHTML = "<p style='text-align:center; padding:20px;'>ตะกร้าว่างเปล่า</p>";
+    } else {
+        list.innerHTML = cart.map(i => `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:#f8fafc; border-radius:10px; margin-bottom:8px; border:1px solid #e2e8f0;">
+                <div style="font-size:14px;"><b>${i.name}</b><br>${i.price.toLocaleString()} ฿</div>
+            </div>
+        `).join("");
+    }
+    const total = cart.reduce((s, i) => s + i.price, 0);
+    document.getElementById('cartTotalText').innerText = "ยอดรวมทั้งสิ้น: " + total.toLocaleString() + " ฿";
+    document.getElementById('cartModal').style.display = 'flex';
+    lucide.createIcons();
+}
+
+// ฟังก์ชันไปหน้าจ่ายเงิน
+function goToCheckout() {
+    document.getElementById('cartModal').style.display = 'none';
+    showPage('checkout');
+}
+
+// ฟังก์ชันเปิด QR
+function openQR() {
+    const total = cart.reduce((s, i) => s + i.price, 0);
+    document.getElementById('qrTotalAmount').innerText = total.toLocaleString();
+    document.getElementById('qrModal').style.display = 'flex';
+}
+
+// ฟังก์ชันย้ายหน้า
+function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(pageId + 'Page').classList.add('active');
+    window.scrollTo(0,0);
+}
+
+// ฟังก์ชันแจ้งเตือนจบงาน (ตัวอย่าง)
+function completeOrder() {
+    alert("ชำระเงินสำเร็จ! ขอบคุณที่ใช้บริการ (จำลอง)");
+    cart = [];
+    document.getElementById('cartCount').innerText = "0 | 0 ฿";
+    document.getElementById('qrModal').style.display = 'none';
+    showPage('shop');
+}
+ // --- DATA ---
+    const initialProducts = [
+        { id:1, name:"ลูกฟุตบอล Pro", price:1200, category:"football", image:"football.jpg"},
+        { id:2, name:"ไม้แบต + ลูกขนไก่", price:200, category:"badminton", image:"badminton.jpg"},
+        { id:3, name:"ลูกวอลเลย์บอล", price:300, category:"volleyball", image:"volleyball.jpg"},
+        { id:4, name:"ลูกบาสเกตบอล", price:200, category:"basketball", image:"basketball.jpg"},
+        { id:5, name:"รองเท้าสตั๊ดฟุตบอล", price:2100, category:"shoes", image:"Football boots.jpg"},
+        { id:6, name:"สนับแข้ง", price:250, category:"protect", image:"gaiter.jpg"},
+        { id:7, name:"สนับศอก", price:250, category:"protect" , image:"elbow pads.jpg"},
+        { id:8, name:"สนับเข่า", price:250, category:"protect", image:"knee pads.jpg"},
+        { id:9, name:"รองเท้าวิ่ง", price:500, category:"shoes" ,image:"running shoes.jpg" },
+        { id:10, name:"ถุงมือผู้รักษาประตู", price:600, category:"football" , image:"goalkeeper gloves.jpg"},
+        { id:11, name:"ตาข่ายประตูฟุตบอล", price:900, category:"football" ,image:"football goal net.jpg"},
+        { id:12, name:"ตาข่ายวอลเลย์บอล", price:850, category:"volleyball" ,image:"volleyball net.jpg"},
+        { id:13, name:"ถุงเท้ากีฬา", price:120, category:"shoes" ,image:"sports socks.jpg"},
+        { id:14, name:"ลูกฟุตซอล", price:700, category:"football",image:"futsal ball.jpg" },
+        { id:15, name:"กรวยซ้อมฟุตบอล", price:300, category:"football",image:"football practice cone.jpg" },
+        { id:16, name:"ปลอกข้อมือ", price:180, category:"protect",image:"Wristband.jpg" },
+        { id:17, name:"ตาข่ายห่วงบาส", price:220, category:"basketball",image:"basketball hoop net.jpg" },
+        { id:18, name:"รองเท้าบาสเกตบอล", price:2200, category:"shoes",image:"basketball shoes.jpg" },
+        { id:19, name:"ผ้าพันข้อเท้า", price:180, category:"protect" ,image:"ankle bandage.jpg"},
+        { id:20, name:"สนับหน้าแข้งแบบยาว", price:350, category:"protect" ,image:"Long shin guards.jpg"},
+        { id:21, name:"ลูกขนไก่ขนแท้", price:350, category:"badminton",image:"real shuttlecock.jpg" },
+        { id:22, name:"กริปพันด้ามไม้แบด", price:120, category:"badminton",image:"Grip tape for badminton racket handle.jpg" },
+        { id:23, name:"ลูกแบตพลาสติก", price:1800, category:"badminton" ,image:"plastic badminton ball.jpg"},
+        { id:24, name:"สนับเข่าวอลเลย์บอล", price:280, category:"volleyball",image:"volleyball knee pads.jpg" },
+        { id:25, name:"รองเท้าวอลเลย์บอล", price:2200, category:"volleyball",image:"volleyball shoes.jpg" },
+        { id:27, name:"นกหวีดผู้ตัดสิน", price:150, category:"football" ,image:"referee's whistle.jpg"},
+        { id:28, name:"เอี๊ยมกีฬา", price:100, category:"football" ,image:"sports bib.jpg"},
+        { id:29, name:"เสื้อเเมนฯ ยูไนเต็ด", price:650, category:"Football shirt + pants" ,image:"man u .png"},
+        { id:30, name:"เสื้อเเมนฯ ซิตี้", price:650, category:"Football shirt + pants" ,image:"mancity.png"},
+        { id:31, name:"เสื้อลิเวอร์พูล", price:650, category:"Football shirt + pants" ,image:"Liverpool.png"},
+        { id:32, name:"เสื้ออาร์เซน่อล", price:650, category:"Football shirt + pants" ,image:"Arsenal.png"},
+        { id:33, name:"เสื้อเชลซี", price:650, category:"Football shirt + pants" ,image:"Chelsea.png"},
+        { id:34, name:"เสื้อสเปอร์ส", price:650, category:"Football shirt + pants" ,image:"Spurs.png"},
+        { id:35, name:"เสื้อนิวคาสเซิล", price:650, category:"Football shirt + pants" ,image:"Newcastle.png"},
+        { id:37, name:"เสื้อบาร์เซโลน่า", price:650, category:"Football shirt + pants" ,image:"Barcelona.png"},
+        { id:38, name:"เสื้อเรอัล มาดริด", price:650, category:"Football shirt + pants" ,image:"Madrid.png"},
+        { id:39, name:"เสื้อแอตฯ มาดริด", price:650, category:"Football shirt + pants" ,image:"Atletico.png"},
+        { id:40, name:"เสื้อบาเลนเซีย", price:650, category:"Football shirt + pants" ,image:"Valence.png"},
+        { id:41, name:"เสื้ออินเตอร์ ไมอามี่", price:650, category:"Football shirt + pants" ,image:"Miami.png"},
+        { id:42, name:"เสื้อบาเยิร์น", price:650, category:"Football shirt + pants" ,image:"Bayern.png"},
+        { id:43, name:"เสื้อดอร์ทมุนด์", price:650, category:"Football shirt + pants" ,image:"Dortmund.png"},
+        { id:44, name:"เสื้อเลเวอร์คูเซ่น", price:650, category:"Football shirt + pants" ,image:"Leverkusen.png"},
+        { id:45, name:"เสื้ออินเตอร์ มิลาน", price:650, category:"Football shirt + pants" ,image:"inter.png"},
+        { id:46, name:"เสื้อเอซี มิลาน", price:650, category:"Football shirt + pants" ,image:"Ac.png"},
+        { id:47, name:"เสื้ออาเเจ็กซ์", price:650, category:"Football shirt + pants" ,image:"Ajax.png"},
+        { id:48, name:"รองเท้าอาดิดาส", price:2500, category:"shoes" ,image:"Adidas.png"},
+        { id:49, name:"เสื้อทีมชาติไทย", price:450, category:"Football shirt + pants" ,image:"Thai.png"}
+    ];
+
+    let products = JSON.parse(localStorage.getItem('shopProducts')) || initialProducts.map(p => ({...p, salePrice: null, isHidden: false}));
+    let cart = [];
+    let loggedUser = null;
+
+    // --- AUTH SYSTEM ---
+    function toggleAuth(type) {
+        document.getElementById('loginBox').style.display = (type === 'login' ? 'block' : 'none');
+        document.getElementById('regBox').style.display = (type === 'reg' ? 'block' : 'none');
+    }
+    function handleRegister() {
+        const u = document.getElementById('regUser').value.trim();
+        const p = document.getElementById('regPass').value.trim();
+        if(!u || !p) return alert("กรุณากรอกข้อมูล");
+        let users = JSON.parse(localStorage.getItem('shopUsers')) || {};
+        users[u] = { password: p };
+        localStorage.setItem('shopUsers', JSON.stringify(users));
+        alert("สมัครสมาชิกสำเร็จ!"); toggleAuth('login');
+    }
+    function handleLogin() {
+        const u = document.getElementById('loginUser').value.trim();
+        const p = document.getElementById('loginPass').value.trim();
+        let users = JSON.parse(localStorage.getItem('shopUsers')) || {};
+        if(users[u] && users[u].password === p) startSession(u, 'customer');
+        else alert("ชื่อผู้ใช้หรือรหัสผ่านผิด!");
+    }
+
+    function handleAdminLogin() {
+    // สร้างหน้าต่างจำลองขึ้นมาเพื่อให้ใส่ดวงตาได้
+    const adminOverlay = document.createElement('div');
+    adminOverlay.id = 'adminOverlay';
+    adminOverlay.style = "position:fixed; inset:0; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; z-index:9999; font-family:'Kanit';";
+    
+    adminOverlay.innerHTML = `
+        <div style="background:white; padding:30px; border-radius:25px; width:320px; text-align:center; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
+            <h3 style="margin-top:0; color:#007bff;">รหัสผ่านแอดมิน</h3>
+            <div style="position:relative; margin:20px 0;">
+                <input type="password" id="adminP" placeholder="กรอกรหัสผ่าน..." 
+                    style="width:100%; padding:12px; border:1px solid #ddd; border-radius:12px; box-sizing:border-box; font-size:16px; outline:none;">
+                <div id="eyeBtnAdmin" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer; color:#94a3b8; display:flex;">
+                    <i data-lucide="eye"></i>
+                </div>
+            </div>
+            <button id="confirmAdmin" style="width:100%; padding:14px; background:#007bff; color:white; border:none; border-radius:12px; font-weight:bold; cursor:pointer; font-family:'Kanit'; font-size:16px;">ตกลง</button>
+            <button id="closeAdmin" style="width:100%; padding:10px; background:none; border:none; color:#666; cursor:pointer; margin-top:10px; font-family:'Kanit';">ยกเลิก</button>
+        </div>
+    `;
+    document.body.appendChild(adminOverlay);
+    lucide.createIcons(); // โหลดไอคอนดวงตา
+
+    const pInput = document.getElementById('adminP');
+    const eyeBtn = document.getElementById('eyeBtnAdmin');
+
+    // ฟังก์ชันกดเปิด-ปิดตา
+    eyeBtn.onclick = () => {
+        if(pInput.type === "password") {
+            pInput.type = "text";
+            eyeBtn.innerHTML = '<i data-lucide="eye-off"></i>';
+        } else {
+            pInput.type = "password";
+            eyeBtn.innerHTML = '<i data-lucide="eye"></i>';
+        }
+        lucide.createIcons();
+    };
+
+    // ฟังก์ชันยืนยันรหัส
+    document.getElementById('confirmAdmin').onclick = () => {
+        if(pInput.value === "1234") { // รหัสเดิมของคุณ
+            document.body.removeChild(adminOverlay);
+            startSession('Admin', 'admin');
+        } else {
+            alert("รหัสผ่านไม่ถูกต้อง!");
+        }
+    };
+
+    // ปุ่มยกเลิก
+    document.getElementById('closeAdmin').onclick = () => {
+        document.body.removeChild(adminOverlay);
+    };
+}
+    function startSession(u, r) {
+        loggedUser = { name: u, role: r };
+        document.getElementById('authPage').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+        document.getElementById('userDisplay').innerText = "ผู้ใช้: " + u + " (" + r + ")";
+        if(r === 'admin') {
+            document.getElementById('adminBtn').style.display = 'inline-flex';
+            document.getElementById('clearOrderBtn').style.display = 'block';
+            document.getElementById('memberBtn').style.display = 'inline-flex';
+        }
+        init();
+    }
+
+    function init() { lucide.createIcons(); renderProducts(); updateBadge(); }
+
+    // --- NEW: Dashboard Update Function ---
+    function updateDashboardStats() {
+        if (loggedUser.role !== 'admin') return;
+        const orders = JSON.parse(localStorage.getItem('orders')) || [];
+        const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);
+        const pendingOrders = orders.filter(o => o.status < 3).length;
+
+        document.getElementById('stat-revenue').innerText = totalRevenue.toLocaleString() + " ฿";
+        document.getElementById('stat-orders').innerText = orders.length + " รายการ";
+        document.getElementById('stat-pending').innerText = pendingOrders + " รายการ";
+    }
+
+    // (ส่วนอื่นๆ ยังคงเดิมเพื่อให้ระบบทำงานได้เหมือนเดิมตามที่คุณต้องการ)
+    function renderProducts(data = products) {
+        const list = document.getElementById("product-list");
+        const visibleProducts = data.filter(p => !p.isHidden);
+        list.innerHTML = visibleProducts.map(p => {
+            const inCart = cart.find(i => i.id === p.id);
+            const hasSale = p.salePrice && p.salePrice < p.price;
+            const currentPrice = hasSale ? p.salePrice : p.price;
+            let badge = p.price > 2000 ? '<div class="badge">HOT</div>' : (p.category.includes('shirt') ? '<div class="badge sale">แนะนำ</div>' : '');
+            if(hasSale) badge = '<div class="badge sale">SALE</div>';
+            return `
+            <div class="product-card">
+                ${badge}
+                <img src="${p.image}" onerror="this.src='https://via.placeholder.com/200x160?text=${p.name}'">
+                <h4 style="font-size:14px; height:40px; overflow:hidden;">${p.name}</h4>
+                <div class="price-tag">
+                    ${hasSale ? `<span class="old-price">${p.price.toLocaleString()}</span>` : ''}
+                    <span class="${hasSale ? 'sale-price' : ''}">${currentPrice.toLocaleString()} ฿</span>
+                </div>
+                <div style="margin-top:10px; display:flex; align-items:center; justify-content:center; gap:5px;">
+                    <input type="checkbox" onchange="toggleCart(${p.id}, this)" ${inCart?'checked':''}>
+                    <input type="number" id="qty-${p.id}" value="${inCart?inCart.qty:1}" min="1" style="width:50px; padding:3px;" onchange="updateQty(${p.id})">
+                </div>
+            </div>`;
+        }).join("");
+    }
+
+    function toggleCart(id, chk) {
+        const p = products.find(x => x.id === id);
+        const qty = parseInt(document.getElementById(`qty-${id}`).value);
+        if(chk.checked) {
+            const currentPrice = (p.salePrice && p.salePrice < p.price) ? p.salePrice : p.price;
+            cart.push({...p, activePrice: currentPrice, qty});
+        }
+        else cart = cart.filter(i => i.id !== id);
+        updateBadge();
+    }
+
+    function updateQty(id) {
+        const qty = parseInt(document.getElementById(`qty-${id}`).value);
+        const item = cart.find(i => i.id === id);
+        if(item) item.qty = qty;
+        updateBadge();
+    }
+
+    function updateBadge() {
+        const total = cart.reduce((s, i) => s + (i.activePrice * i.qty), 0);
+        document.getElementById('cartCount').innerText = `${cart.length} ชิ้น | ${total.toLocaleString()} ฿`;
+    }
+
+    function openCart() {
+        const list = document.getElementById('cartItemsList');
+        if(!cart.length) {
+            list.innerHTML = "<p style='text-align:center;'>ตะกร้าว่างเปล่า</p>";
+        } else {
+            list.innerHTML = cart.map(i => `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:#f8fafc; border-radius:10px; margin-bottom:8px;">
+                    <div style="font-size:14px;"><b>${i.name}</b><br><small>${i.activePrice.toLocaleString()} ฿ x ${i.qty}</small></div>
+                    <button class="btn-del" onclick="removeFromCart(${i.id})">ลบ</button>
+                </div>
+            `).join("");
+        }
+        const total = cart.reduce((s, i) => s + (i.activePrice * i.qty), 0);
+        document.getElementById('cartTotalText').innerText = "ยอดรวมทั้งสิ้น: " + total.toLocaleString() + " ฿";
+        document.getElementById('cartModal').style.display = 'flex';
+    }
+
+    function removeFromCart(id) {
+        cart = cart.filter(i => i.id !== id);
+        updateBadge();
+        openCart();
+        renderProducts();
+    }
+
+    function goToCheckout() {
+        if(!cart.length) return alert("เลือกสินค้าก่อนครับ");
+        closeModal('cartModal');
+        showPage('checkout');
+    }
+
+   // --- 1. แก้ไขให้ตรวจสอบทั้งชื่อและเบอร์โทรศัพท์ก่อนไปหน้าจ่ายเงิน ---
+    function openQR() {
+        const n = document.getElementById('custName').value.trim();
+        const p = document.getElementById('custPhone').value.trim();
+        
+        if(!n || !p) return alert("กรุณากรอกชื่อและเบอร์โทรศัพท์ให้ครบถ้วน");
+        
+        const total = cart.reduce((s, i) => s + (i.activePrice * i.qty), 0);
+        document.getElementById('qrTotalAmount').innerText = total.toLocaleString();
+        document.getElementById('qrModal').style.display = 'flex';
+    }
+
+   // 1. ประกาศตัวแปรเก็บออเดอร์ไว้ด้านบนสุด (ห้ามนิยามซ้ำในฟังก์ชัน)
+let orders = JSON.parse(localStorage.getItem('orders')) || [];
+
+
+
+function renderOrders() {
+    const container = document.getElementById('order-list-container');
+    if (!container) return;
+
+    // ดึงข้อมูลล่าสุดจาก LocalStorage เสมอ
+    let allOrders = JSON.parse(localStorage.getItem('orders')) || [];
+    
+    // กรองออเดอร์: Admin เห็นหมด / User เห็นแค่ของตัวเอง
+    let displayOrders = (loggedUser.role === 'admin') 
+        ? allOrders 
+        : allOrders.filter(o => o.user === loggedUser.name);
+
+    // เรียงจากใหม่ไปเก่า (ออเดอร์ล่าสุดอยู่บน)
+    displayOrders.reverse();
+
+    if (displayOrders.length === 0) { 
+        container.innerHTML = "<div style='text-align:center; padding:50px; color:#64748b;'> ไม่พบประวัติการสั่งซื้อ </div>"; 
+        return; 
+    }
+
+    container.innerHTML = displayOrders.map(o => {
+        const isComplete = o.status >= 3;
+        const borderColor = isComplete ? 'border-left: 5px solid #10b981;' : 'border-left: 5px solid #f59e0b;';
+
+        return `
+            <div class="order-card" style="${borderColor} margin-bottom:15px; background:white; padding:15px; border-radius:15px; box-shadow:0 2px 10px rgba(0,0,0,0.05);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <b style="color:#1e293b;">#${o.id}</b> 
+                    <small style="color:#64748b;">${o.date}</small>
+                </div>
+
+                <div class="status-timeline" style="display:flex; justify-content:space-between; margin:15px 0; position:relative;">
+                    <div class="status-step" style="text-align:center; flex:1;">
+                        <div class="step-icon" style="background:#10b981; color:white; width:22px; height:22px; border-radius:50%; margin:0 auto; display:flex; align-items:center; justify-content:center; font-size:10px;">
+                            <i data-lucide="check" style="width:12px;"></i>
+                        </div>
+                        <span style="font-size:11px; display:block; margin-top:5px; color:#10b981; font-weight:bold;">ชำระเงิน</span>
+                    </div>
+                    <div class="status-step" style="text-align:center; flex:1;">
+                        <div class="step-icon" style="background:${o.status >= 1 ? '#10b981' : '#e2e8f0'}; color:white; width:22px; height:22px; border-radius:50%; margin:0 auto; display:flex; align-items:center; justify-content:center; font-size:10px;">
+                            <i data-lucide="package" style="width:12px;"></i>
+                        </div>
+                        <span style="font-size:11px; display:block; margin-top:5px;">เตรียมส่ง</span>
+                    </div>
+                    <div class="status-step" style="text-align:center; flex:1;">
+                        <div class="step-icon" style="background:${o.status >= 3 ? '#10b981' : '#e2e8f0'}; color:white; width:22px; height:22px; border-radius:50%; margin:0 auto; display:flex; align-items:center; justify-content:center; font-size:10px;">
+                            <i data-lucide="truck" style="width:12px;"></i>
+                        </div>
+                        <span style="font-size:11px; display:block; margin-top:5px;">ส่งสำเร็จ</span>
+                    </div>
+                </div>
+
+                <div style="font-size:13px; background:#f8fafc; padding:12px; border-radius:12px; line-height:1.6;">
+                    <div style="margin-bottom: 4px;">ผู้รับ: <b>${o.customer}</b></div>
+                    <div style="margin-bottom: 4px; color: #007bff;">เบอร์โทร: <b>${o.phone}</b></div>
+                    <div style="margin-bottom: 4px; color: #475569;">ที่อยู่: ${o.address}</div>
+                    
+                    ${loggedUser.role === 'admin' ? `<div style="color:#94a3b8; font-size:11px; margin-top:5px;">(Username: ${o.user})</div>` : ''}
+                    
+                    <hr style="border:0; border-top:1px solid #e2e8f0; margin:10px 0;">
+                    
+                    <div style="color:#1e293b;">
+                        ${o.items.map(i => `<div style="display:flex; justify-content:space-between;"><span>• ${i.name}</span> <span>x${i.qty}</span></div>`).join("")}
+                    </div>
+                    
+                    <div style="text-align:right; font-weight:bold; color:#ef4444; font-size:16px; margin-top:10px; border-top:1px dashed #cbd5e1; padding-top:10px;">
+                        ยอดรวม: ${o.total.toLocaleString()} ฿
+                    </div>
+                </div>
+
+                ${(loggedUser.role === 'admin' && o.status < 3) ? `
+                    <button class="btn-full" 
+                        style="width:100%; background:#10b981; color:white; padding:12px; font-size:14px; border:none; border-radius:10px; cursor:pointer; margin-top:12px; font-family:'Kanit'; font-weight:bold;" 
+                        onclick="updateOrderStatus('${o.id}', 3)">
+                        ยืนยันการจัดส่งสำเร็จ
+                    </button>
+                ` : ''}
+            </div>
+        `;
+    }).join("");
+    
+    if (window.lucide) lucide.createIcons();
+}
+// แก้ไขฟังก์ชัน Update Status ให้รองรับค่าที่ส่งมา
+function updateOrderStatus(id, nextStatus) {
+    let orders = JSON.parse(localStorage.getItem('orders')) || [];
+    const idx = orders.findIndex(o => o.id === id);
+    if(idx !== -1) {
+        orders[idx].status = nextStatus;
+        localStorage.setItem('orders', JSON.stringify(orders));
+        renderOrders(); // วาดรายการใหม่ทันที
+        if(typeof updateDashboardStats === 'function') updateDashboardStats(); // อัปเดตตัวเลขแอดมิน
+    }
+}
+    function clearOrderHistory() {
+        if(confirm("ล้างประวัติทั้งหมด?")) { localStorage.removeItem('orders'); renderOrders(); updateDashboardStats(); }
+    }
+
+    function renderAdminProducts() {
+        updateDashboardStats(); // อัปเดตตัวเลขทุกครั้งที่เข้าหน้า Admin
+        const list = document.getElementById('admin-product-list');
+        list.innerHTML = products.map(p => {
+            const isHidden = p.isHidden || false;
+            return `
+            <div class="admin-item" style="opacity: ${isHidden ? '0.5' : '1'};">
+                <div style="display:flex; justify-content:space-between;">
+                    <b style="${isHidden ? 'text-decoration: line-through;' : ''}">${p.name}</b>
+                    <span>ราคาหลัก: ${p.price.toLocaleString()} ฿</span>
+                </div>
+                <div class="admin-controls">
+                    <div style="flex:1;">
+                        <small>ราคาลดเหลือ:</small>
+                        <input type="number" placeholder="ไม่ลดไม่ต้องใส่" value="${p.salePrice || ''}" onchange="updateSalePrice(${p.id}, this.value)" style="margin:2px 0; padding:5px;">
+                    </div>
+                    ${isHidden 
+                        ? `<button class="btn-success" style="padding:5px 10px;" onclick="toggleProductStatus(${p.id}, false)">เอากลับมาขาย</button>` 
+                        : `<button class="btn-del" style="background: #6c757d; padding:5px 10px;" onclick="toggleProductStatus(${p.id}, true)">ซ่อนสินค้าชิ้นนี้</button>`
+                    }
+                    <button class="btn-del" onclick="deleteProduct(${p.id})">ลบ</button>
+                </div>
+            </div>`;}).join("");
+   function updateDashboardStats() {
+        if (loggedUser.role !== 'admin') return;
+        const orders = JSON.parse(localStorage.getItem('orders')) || [];
+        
+        // คำนวณยอดเงิน
+        const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);
+        
+        // แยกนับสถานะ: status 4 คือส่งสำเร็จ, น้อยกว่า 4 คือยังไม่เสร็จ (รอส่ง)
+        const pendingOrders = orders.filter(o => o.status < 4).length;
+        const completedOrders = orders.filter(o => o.status === 4).length;
+
+        document.getElementById('stat-revenue').innerText = totalRevenue.toLocaleString() + " ฿";
+        document.getElementById('stat-orders').innerText = orders.length + " รายการ";
+        document.getElementById('stat-pending').innerText = pendingOrders + " รายการ";
+        document.getElementById('stat-completed').innerText = completedOrders + " รายการ";
+        
+        lucide.createIcons();
+    }
+    }
+    // อย่าลืมเพิ่มฟังก์ชันสำหรับเปลี่ยนสถานะออเดอร์ เพื่อให้ตัวเลขขยับ
+    function updateOrderStatus(id, nextStatus) {
+        let orders = JSON.parse(localStorage.getItem('orders')) || [];
+        const idx = orders.findIndex(o => o.id === id);
+        if(idx !== -1) {
+            orders[idx].status = nextStatus;
+            localStorage.setItem('orders', JSON.stringify(orders));
+            renderOrders(); // วาดรายการใหม่
+            updateDashboardStats(); // อัปเดตตัวเลข Dashboard ทันที
+        }
+    }
+    function toggleProductStatus(id, hide) {
+        const idx = products.findIndex(p => p.id === id);
+        if (idx !== -1) {
+            products[idx].isHidden = hide;
+            localStorage.setItem('shopProducts', JSON.stringify(products));
+            renderAdminProducts();
+            renderProducts();
+        }
+    }
+
+    function deleteProduct(id) {
+        if(confirm("ลบสินค้านี้ถาวรใช่ไหม?")) {
+            products = products.filter(p => p.id !== id);
+            localStorage.setItem('shopProducts', JSON.stringify(products));
+            renderAdminProducts();
+            renderProducts();
+        }
+    }
+
+    function addNewProduct() {
+        const name = document.getElementById('pName').value;
+        const price = parseInt(document.getElementById('pPrice').value);
+        if(!name || !price) return;
+        products.push({ id: Date.now(), name, price, category: document.getElementById('pCat').value, image: "", isHidden: false, salePrice: null });
+        localStorage.setItem('shopProducts', JSON.stringify(products));
+        alert("เพิ่มสินค้าสำเร็จ"); 
+        document.getElementById('pName').value = '';
+        document.getElementById('pPrice').value = '';
+        renderAdminProducts();
+    }
+
+    function resetProducts() {
+        if(confirm("รีเซ็ตข้อมูลทั้งหมด?")) {
+            localStorage.removeItem('shopProducts');
+            location.reload();
+        }
+    }
+
+    // --- ฟังก์ชันเปลี่ยนหน้าจอ (ฉบับแก้ไขสมบูรณ์) ---
+    function showPage(id) {
+        // 1. ซ่อนทุกหน้า
+        const allPages = document.querySelectorAll('.page');
+        allPages.forEach(p => {
+            p.classList.remove('active');
+            p.style.display = 'none'; // บังคับซ่อนทุกหน้า
+        });
+
+        // 2. เคลียร์ปุ่มเมนู
+        document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active-nav'));
+
+        // 3. แสดงหน้าที่ต้องการ
+        const targetPage = document.getElementById(id + 'Page');
+        if (targetPage) {
+            targetPage.classList.add('active');
+            targetPage.style.display = 'block'; // บังคับแสดงหน้าที่เลือก
+        }
+
+        // 4. ไฮไลท์ปุ่มเมนู
+        const btn = document.getElementById('nav-' + id);
+        if(btn) btn.classList.add('active-nav');
+
+        // 5. รันฟังก์ชันเฉพาะของแต่ละหน้า
+        if(id === 'orders') renderOrders();
+        if(id === 'admin') renderAdminProducts();
+        if(id === 'member') renderMembers();
+        
+        window.scrollTo(0,0);
+    }
+
+    // --- ฟังก์ชันเสริมอื่นๆ ---
+    function filterCategory(cat) { 
+        showPage('shop'); 
+        document.getElementById('categoryTitle').innerText = "หมวดหมู่: " + cat; 
+        renderProducts(products.filter(p => p.category === cat)); 
+    }
+
+    function searchProduct() { 
+        showPage('shop');
+        const t = document.getElementById('searchInput').value.toLowerCase(); 
+        renderProducts(products.filter(p => p.name.toLowerCase().includes(t))); 
+    }
+
+    function closeModal(id) { 
+        document.getElementById(id).style.display = 'none'; 
+    }
+
+    // --- ระบบสมาชิก (Admin เท่านั้น) ---
+    function renderMembers() {
+        const container = document.getElementById('member-list-container');
+        if(!container) return;
+
+        const users = JSON.parse(localStorage.getItem('shopUsers')) || {};
+        const orders = JSON.parse(localStorage.getItem('orders')) || [];
+        const userKeys = Object.keys(users);
+        
+        if (userKeys.length === 0) {
+            container.innerHTML = "<p style='text-align:center; padding:20px;'>ยังไม่มีสมาชิก</p>";
+            return;
+        }
+
+        container.innerHTML = userKeys.map(u => {
+            const userOrders = orders.filter(o => o.user === u);
+            const lastOrder = userOrders[userOrders.length - 1] || {};
+            return `
+                <div class="admin-item" style="border:1px solid #eee; margin-bottom:10px; padding:15px; border-radius:12px; background:#fff; text-align:left;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <b>ชื่อผู้ใช้: ${u}</b>
+                        <button class="btn-del" onclick="deleteMember('${u}')" style="background:red; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">ลบสมาชิก</button>
+                    </div>
+                    <div style="font-size:13px; color:#666; margin-top:8px;">
+                        <div>🔑 รหัสผ่าน: <span style="color:red; font-weight:bold;">${users[u].password}</span></div>
+                        <div>📞 เบอร์ล่าสุด: ${lastOrder.phone || 'ไม่มีข้อมูล'}</div>
+                        <div>🏠 ที่อยู่ล่าสุด: ${lastOrder.address || 'ไม่มีข้อมูล'}</div>
+                    </div>
+                </div>`;
+        }).join("");
+    }
+
+    function deleteMember(u) {
+        if(confirm('ยืนยันลบสมาชิก ' + u + '?')) {
+            let us = JSON.parse(localStorage.getItem('shopUsers')) || {};
+            delete us[u];
+            localStorage.setItem('shopUsers', JSON.stringify(us));
+            renderMembers();
+        }
+    }
+// ฟังก์ชันสำหรับเปิดหน้าอ้างอิงโดยเฉพาะ (ไม่กระทบของเดิม)
+function showReferences() {
+    // ซ่อนทุกหน้าที่มีคลาส .page
+    document.querySelectorAll('.page').forEach(p => {
+        p.classList.remove('active');
+        p.style.display = 'none';
+    });
+    
+    // เคลียร์สีปุ่มเมนูทั้งหมด
+    document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active-nav'));
+
+    // แสดงหน้าอ้างอิง
+    const refPage = document.getElementById('referencesPage');
+    if (refPage) {
+        refPage.classList.add('active');
+        refPage.style.display = 'block';
+    }
+
+    // ไฮไลท์ปุ่มอ้างอิง
+    const refBtn = document.getElementById('nav-references');
+    if (refBtn) refBtn.classList.add('active-nav');
+    
+    // โหลดไอคอน
+    lucide.createIcons();
+    window.scrollTo(0,0);
+}
+// ฟังก์ชันเปิดหน้า QR Code
+function openQR() {
+    // 1. เช็คว่ากรอกข้อมูลครบไหม
+    const name = document.getElementById('custName').value.trim();
+    const phone = document.getElementById('custPhone').value.trim();
+    const addr = document.getElementById('custAddr').value.trim();
+
+    if (!name || !phone || !addr) {
+        alert("กรุณากรอกข้อมูลจัดส่งให้ครบถ้วนก่อนชำระเงินครับ");
+        return;
+    }
+
+    // 2. คำนวณยอดเงินรวมจากตะกร้า
+    const total = cart.reduce((sum, item) => sum + (item.activePrice * item.qty), 0);
+    
+    // 3. แสดงยอดเงินใน Modal QR
+    document.getElementById('qrTotalAmount').innerText = total.toLocaleString();
+    
+    // 4. เปิดหน้าต่าง QR Code
+    document.getElementById('qrModal').style.display = 'flex';
+}
+
+/// ฟังก์ชันยืนยันการชำระเงิน (เวอร์ชันแก้ไขให้บันทึกและเด้งไปหน้าประวัติ)
+function completeOrder() {
+    if (cart.length === 0) return alert("ตะกร้าสินค้าว่างเปล่า");
+
+    // 1. ดึงข้อมูลจากฟอร์มหน้า Checkout (เช็ค ID ให้ตรงกับหน้า HTML ของคุณ)
+    const name = document.getElementById('custName')?.value.trim() || 'ลูกค้าทั่วไป';
+    const phone = document.getElementById('custPhone')?.value.trim() || 'ไม่ระบุ';
+    const addr = document.getElementById('custAddr')?.value.trim() || 'ไม่ระบุที่อยู่';
+
+    // 2. สร้างก้อนข้อมูลออเดอร์
+    const newOrder = {
+        id: 'ORD-' + Date.now(),
+        date: new Date().toLocaleString('th-TH'),
+        items: [...cart],
+        total: cart.reduce((s, i) => s + (i.activePrice * i.qty), 0),
+        user: loggedUser.name,     // สำคัญมาก! ใช้กรองประวัติ
+        customer: name,
+        phone: phone,
+        address: addr,
+        status: 0                  // 0 = ชำระเงินแล้ว
+    };
+
+    // 3. บันทึกลง LocalStorage (ดึงของเก่ามาต่อของใหม่)
+    let currentOrders = JSON.parse(localStorage.getItem('orders')) || [];
+    currentOrders.push(newOrder);
+    localStorage.setItem('orders', JSON.stringify(currentOrders));
+
+    // 4. ล้างตะกร้าสินค้า
+    cart = [];
+    updateBadge(); // อัปเดตตัวเลขหน้าเว็บ (ฟังก์ชันที่คุณมีอยู่แล้ว)
+    
+    // 5. ปิดหน้าต่าง QR
+    document.getElementById('qrModal').style.display = 'none';
+    
+    alert("ชำระเงินสำเร็จ! ระบบได้บันทึกประวัติการสั่งซื้อเรียบร้อย");
+
+    // 6. เด้งไปหน้าประวัติการสั่งซื้อทันที
+    showPage('orders');
+    // เรียก renderOrders เพื่อให้ข้อมูลที่เพิ่งซื้อแสดงออกมาเลย
+    if (typeof renderOrders === 'function') renderOrders();
+}
+// ฟังก์ชันอัปเดตตัวเลขตะกร้า (ถ้ายังไม่มีให้เพิ่มอันนี้ด้วย)
+function updateBadge() {
+    const count = cart.reduce((s, i) => s + i.qty, 0);
+    const total = cart.reduce((s, i) => s + (i.activePrice * i.qty), 0);
+    document.getElementById('cartCount').innerText = `${count} | ${total.toLocaleString()} ฿`;
+}   
+// สั่งโหลดไอคอนเริ่มต้น
+    lucide.createIcons();
+</script>
+</body>
+</html>
